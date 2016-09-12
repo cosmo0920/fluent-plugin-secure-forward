@@ -1,4 +1,5 @@
 require 'helper'
+require 'fluent/test/driver/output'
 
 class SecureForwardOutputTest < Test::Unit::TestCase
   CONFIG = %[
@@ -9,7 +10,7 @@ class SecureForwardOutputTest < Test::Unit::TestCase
   end
 
   def create_driver(conf=CONFIG,tag='test')
-    Fluent::Test::OutputTestDriver.new(Fluent::SecureForwardOutput, tag).configure(conf)
+    Fluent::Test::Driver::Output.new(Fluent::Plugin::SecureForwardOutput).configure(conf)
   end
 
   def test_configure_secondary
@@ -99,7 +100,7 @@ CONFIG
     standby
   </server>
 CONFIG
-    assert_equal 3, p1.num_threads
+    assert_equal 3, p1.buffer_config.flush_thread_count
     assert_equal 1, p1.log.logs.select{|line| line =~ /\[warn\]: Too many num_threads for secure-forward:/}.size
   end
 

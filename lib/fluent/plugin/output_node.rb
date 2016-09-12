@@ -8,7 +8,7 @@ require 'proxifier'
 
 require_relative 'openssl_util'
 
-class Fluent::SecureForwardOutput::Node
+class Fluent::Plugin::SecureForwardOutput::Node
   attr_accessor :host, :port, :hostlabel, :shared_key, :username, :password, :standby
 
   attr_accessor :authentication, :keepalive

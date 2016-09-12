@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require 'fluent/output'
+require 'fluent/plugin/output'
 
 require 'socket'
 require 'openssl'
@@ -8,18 +8,21 @@ require 'digest'
 require 'resolve/hostname'
 require 'securerandom'
 
-module Fluent
-  class SecureForwardOutput < ObjectBufferedOutput
+module Fluent::Plugin
+  class SecureForwardOutput < Output
   end
 end
 
 require_relative 'output_node'
 
-module Fluent
-  class SecureForwardOutput < ObjectBufferedOutput
+module Fluent::Plugin
+  class SecureForwardOutput < Output
     DEFAULT_SECURE_CONNECT_PORT = 24284
+    DEFAULT_BUFFER_TYPE = "memory"
 
     Fluent::Plugin.register_output('secure_forward', self)
+
+    helpers :compat_parameters
 
     config_param :secure, :bool
 
@@ -63,6 +66,11 @@ module Fluent
       config_param :standby, :bool, default: false
       config_param :proxy_uri, :string, default: nil
     end
+
+    config_section :buffer do
+      config_set_default :@type, DEFAULT_BUFFER_TYPE
+      config_set_default :chunk_keys, ['tag']
+    end
     attr_reader :nodes
 
     attr_reader :hostname_resolver
@@ -92,8 +100,10 @@ module Fluent
     def configure(conf)
       hostname = conf.has_key?('hostname') ? conf['hostname'].to_s : Socket.gethostname
       replace_hostname_placeholder(conf, hostname)
-
+      compat_parameters_convert(conf, :buffer)
       super
+
+      raise Fluent::ConfigError, "'tag' in chunk_keys is required." if not @chunk_key_tag
 
       if @secure
         if @ca_cert_path
@@ -125,7 +135,7 @@ module Fluent
         @nodes.push node
       end
 
-      if @num_threads > @nodes.select{|n| not n.standby}.size
+      if @buffer_config.flush_thread_count > @nodes.select{|n| not n.standby}.size
         log.warn "Too many num_threads for secure-forward: threads should be smaller or equal to non standby servers"
       end
 
@@ -251,6 +261,10 @@ module Fluent
         node.detach!
         node.join
       end
+    end
+
+    def write(chunk)
+      write_objects(chunk.metadata.tag, chunk)
     end
 
     def write_objects(tag, es)

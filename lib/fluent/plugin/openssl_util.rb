@@ -1,4 +1,4 @@
-module Fluent::SecureForwardOutput::OpenSSLUtil
+module Fluent::Plugin::SecureForwardOutput::OpenSSLUtil
   def self.verify_result_name(code)
     case code
     when OpenSSL::X509::V_OK then 'V_OK'
