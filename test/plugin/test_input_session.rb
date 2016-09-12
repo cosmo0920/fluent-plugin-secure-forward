@@ -14,7 +14,7 @@ class InputSessionTest < Test::Unit::TestCase
       { address: IPAddr.new('127.0.0.0/24'), shared_key: 'shared_key3', users: ['tagomoris', 'repeatedly'] },
     ]
     p1 = DummyInputPlugin.new(nodes: nodes)
-    s1 = Fluent::SecureForwardInput::Session.new(p1, DummySocket.new)
+    s1 = Fluent::Plugin::SecureForwardInput::Session.new(p1, DummySocket.new)
 
     assert s1.check_node('127.0.0.1')
     assert_equal 'shared_key', s1.check_node('127.0.0.1')[:shared_key]

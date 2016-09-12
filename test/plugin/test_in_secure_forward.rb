@@ -1,4 +1,5 @@
 require 'helper'
+require 'fluent/test/driver/input'
 
 class SecureForwardInputTest < Test::Unit::TestCase
   CONFIG = %[
@@ -9,8 +10,8 @@ class SecureForwardInputTest < Test::Unit::TestCase
     Fluent::Test.setup
   end
 
-  def create_driver(conf=CONFIG,tag='test')
-    Fluent::Test::InputTestDriver.new(Fluent::SecureForwardInput).configure(conf)
+  def create_driver(conf=CONFIG)
+    Fluent::Test::Driver::Input.new(Fluent::Plugin::SecureForwardInput).configure(conf)
   end
 
   def test_configure

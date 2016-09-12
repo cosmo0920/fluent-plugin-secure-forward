@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require 'fluent/input'
+require 'fluent/plugin/input'
 
 require 'ipaddr'
 require 'socket'
@@ -8,7 +8,7 @@ require 'openssl'
 require 'digest'
 require 'securerandom'
 
-module Fluent
+module Fluent::Plugin
   class SecureForwardInput < Input
   end
 end
@@ -16,7 +16,7 @@ end
 require_relative 'input_session'
 require_relative './secure_forward/cert_util'
 
-module Fluent
+module Fluent::Plugin
   class SecureForwardInput < Input
     DEFAULT_SECURE_LISTEN_PORT = 24284
 
@@ -289,7 +289,7 @@ module Fluent
 
       if entries.class == String
         # PackedForward
-        es = MessagePackEventStream.new(entries, @cached_unpacker)
+        es = Fluent::MessagePackEventStream.new(entries, @cached_unpacker)
         router.emit_stream(tag, es)
 
       elsif entries.class == Array

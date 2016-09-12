@@ -4,7 +4,7 @@ require 'openssl'
 require 'digest'
 # require 'resolv'
 
-class Fluent::SecureForwardInput::Session
+class Fluent::Plugin::SecureForwardInput::Session
   attr_accessor :receiver
   attr_accessor :state, :thread, :node, :socket, :unpacker, :auth_salt
 
